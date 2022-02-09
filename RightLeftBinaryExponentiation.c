@@ -1,3 +1,5 @@
+#include <string.h>
+
 int RightLeftBinaryExponentiation(int a, char b[]) {
     int len = strlen(b);
     int term = a;
