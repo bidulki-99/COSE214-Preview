@@ -7,4 +7,4 @@ int BruteForceStringMatch(char t[], char p[], int n, int m) {
             return i;
     }
     return -1;
-}00
+}
