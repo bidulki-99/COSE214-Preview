@@ -8,7 +8,4 @@ void SelectionSort(int a[], int n) {
         a[i] = a[min];
         a[min] = temp;
     }
-
-    for (int i = 0; i < n; i++)
-        printf("%d ", a[i]);
 }
