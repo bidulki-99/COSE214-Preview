@@ -47,6 +47,8 @@ double EfficientClosestPair(Point p[], Point q[], int n) {
     return sqrt(dminsq);
 }
 
+// 정렬은 O(nlogn) 알고리즘으로 해야 효율 향상이 있음
+// sort하는 방법이 중요한 것이 아니기 때문에 단순히 가장 간단하고 빠르게 생각할 수 있는 방법을 임의로 사용한 것
 void sort_x(Point p[], int n) {
     for (int i = 0; i <= n-2; i++) {
         for (int j = 0; j <= n-2-i; j++) {
