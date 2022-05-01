@@ -1,5 +1,11 @@
+#include <stdio.h>
 #include <math.h>
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
+#define SWAP(a, b, type) do { \
+    type temp = a;  \
+    a = b;          \
+    b = temp;       \
+} while (0)
 
 typedef struct point
 {
@@ -24,7 +30,7 @@ double EfficientClosestPair(Point p[], Point q[], int n) {
         return d;
     }
 
-    Point p_l[1000], q_l[1000], p_r[1000], q_r[1000];
+    Point p_l[1000], q_l[1000], p_r[1000], q_r[1000], s[1000];
     double d_l, d_r;
     copy(p, 0, ceil(n/2), p_l, 0, ceil(n/2));
     copy(q, 0, ceil(n/2), q_l, 0, ceil(n/2));
@@ -33,13 +39,20 @@ double EfficientClosestPair(Point p[], Point q[], int n) {
     d_l = EfficientClosestPair(p_l, q_l, ceil(n/2));
     d_r = EfficientClosestPair(p_r, q_r, n/2);
     double d = MIN(d_l, d_r);
-    double m = p[int(ceil(n/2)) - 1].x;
+    double m = p[ceil(n/2) - 1].x;
+    int num = 0;
+    for (int i = 0; i < n; i++) {
+        if (abs(q[i].x - m) < d) {
+            s[num].x = q[i].x;
+            s[num++].x = q[i].y;
+        }
+    }
 
     double dminsq = pow(d, 2);
-    for (int i = 0; i < n-1; i++) {
+    for (int i = 0; i <= num - 2; i++) {
         int k = i+1;
-        while (k <= n-1 && pow((q[k].y - q[i].y), 2) < dminsq) {
-            dminsq = MIN(pow((q[k].x - q[i].x), 2) + pow((q[k].y - q[i].y), 2), dminsq);
+        while (k <= num - 1 && pow((s[k].y - s[i].y), 2) < dminsq) {
+            dminsq = MIN(pow((s[k].x - s[i].x), 2) + pow((s[k].y - s[i].y), 2), dminsq);
             k++;
         }
     }
@@ -47,36 +60,65 @@ double EfficientClosestPair(Point p[], Point q[], int n) {
     return sqrt(dminsq);
 }
 
-// sort는 O(nlogn) 알고리즘으로 해야 효율 향상이 있음
-// sort하는 방법이 중요한 것이 아니기 때문에 단순히 가장 간단하고 빠르게 생각할 수 있는 방법을 임의로 사용한 것
-void sort_x(Point p[], int n) {
-    for (int i = 0; i <= n-2; i++) {
-        for (int j = 0; j <= n-2-i; j++) {
-            if (p[j+1].x < p[j].x) {
-                double temp1 = p[j].x;
-                p[j].x = p[j+1].x;
-                p[j+1].x = temp1;
+int HoarePartition_x(Point a[], int l, int r) {
+    double p = a[l].x;
+    int i = l, j = r+1;
+    do {
+        do i++; while (a[i].x < p);
+        do j--; while (a[j].x > p);
+        SWAP(a[i].x, a[j].x, double);
+        SWAP(a[i].y, a[j].y, double);
+    } while (i < j);
+    SWAP(a[i].x, a[j].x, double);
+    SWAP(a[i].y, a[j].y, double);
+    SWAP(a[l].x, a[j].x, double);
+    SWAP(a[l].y, a[j].y, double);
+    return j;
+}
 
-                double temp2 = p[j].y;
-                p[j].y = p[j+1].y;
-                p[j+1].y = temp2;
-            }
-        }
+void QuickSort_x(Point a[], int l, int r) {
+    if (l < r) {
+        int s = HoarePartition_x(a, l, r);
+        QuickSort_x(a, l, s-1);
+        QuickSort_x(a, s+1, r);
     }
 }
 
-void sort_y(Point p[], int n) {
-    for (int i = 0; i <= n-2; i++) {
-        for (int j = 0; j <= n-2-i; j++) {
-            if (p[j+1].y < p[j].y) {
-                double temp1 = p[j].x;
-                p[j].x = p[j+1].x;
-                p[j+1].x = temp1;
+int HoarePartition_y(Point a[], int l, int r) {
+    double p = a[l].y;
+    int i = l, j = r+1;
+    do {
+        do i++; while (a[i].y < p);
+        do j--; while (a[j].y > p);
+        SWAP(a[i].x, a[j].x, double);
+        SWAP(a[i].y, a[j].y, double);
+    } while (i < j);
+    SWAP(a[i].x, a[j].x, double);
+    SWAP(a[i].y, a[j].y, double);
+    SWAP(a[l].x, a[j].x, double);
+    SWAP(a[l].y, a[j].y, double);
+    return j;
+}
 
-                double temp2 = p[j].y;
-                p[j].y = p[j+1].y;
-                p[j+1].y = temp2;
-            }
-        }
+void QuickSort_y(Point a[], int l, int r) {
+    if (l < r) {
+        int s = HoarePartition_y(a, l, r);
+        QuickSort_y(a, l, s-1);
+        QuickSort_y(a, s+1, r);
     }
+}
+
+int main() {
+    int n;
+    scanf("%d", &n);
+
+    Point p[1000], q[1000];
+    for (int i = 0; i < n; i++) {
+        scanf("%lf %lf", &p[i].x, &p[i].y);
+    }
+    copy(p, 0, n, q, 0, n);
+
+    QuickSort_x(p, 0, n-1);
+    QuickSort_y(q, 0, n-1);
+    printf("%lf", EfficientClosestPair(p, q, n));
 }
