@@ -5,7 +5,6 @@
 } while (0)
 
 void JohnsonTrotter(int n) {
-    
     int num[1000] = {0, };
     int arrow[1000] = {0, };
     for (int i = 1; i <= n; i++) {
